@@ -194,40 +194,4 @@ with aba1:
     if total_pedidos == 0:
         st.info("🌸 O mural ainda está vazio. Seja a primeira pessoa a escrever uma cartinha na aba 'Escrever um Pedido'!")
     else:
-        grid_cols = st.columns(2)
-        pedidos_exibidos = 0
-        
-        for i, pedido in enumerate(st.session_state.pedidos):
-            is_resgatado = pedido.get("resgatado", False)
-            
-            if "Aguardando" in filtro_visualizacao and is_resgatado:
-                continue
-            if "Resgatados" in filtro_visualizacao and not is_resgatado:
-                continue
-                
-            pedidos_exibidos += 1
-            col = grid_cols[pedidos_exibidos % 2]
-            
-            with col:
-                status_tag = "✅ Resgatado com Amor!" if is_resgatado else "⏳ Aguardando Resgate"
-                serie_info = f" • {pedido['serie']}" if pedido.get('serie') else ""
-                
-                card_html = (
-                    f"<div class=\"card\">"
-                    f"<div class=\"card-title\">🌸 Cartinha de {pedido['nome']} ({pedido['idade']} anos{serie_info})</div>"
-                    f"<small style=\"color: #6a1b9a; font-weight: bold;\">📍 {pedido['cidade']}</small><br><br>"
-                    f"<p class=\"card-text\">\"{pedido['historia']}\"</p>"
-                    f"<hr style=\"border: 0.5px dashed #ce93d8; margin: 10px 0;\">"
-                    f"<b style=\"color: #3d0012;\">📦 Item necessário:</b> <span class=\"badge\">{pedido['item']}</span><br><br>"
-                    f"<small style=\"color: #3d0012;\">Status: <b>{status_tag}</b></small>"
-                    f"</div>"
-                )
-                st.markdown(card_html, unsafe_allow_html=True)
-                
-                # Botão para marcar como resgatado
-                if not is_resgatado:
-                    with st.popover(f"🎁 Resgatar pedido de {pedido['nome']}"):
-                        st.write(f"💖 **Você vai ajudar {pedido['nome']}!**")
-                        st.write(f"Item necessário: **{pedido['item']}**")
-                        
-                        nome_doador = st.text_input("Seu nome ou apelido (opcional):", key=
+        grid_cols = st.
