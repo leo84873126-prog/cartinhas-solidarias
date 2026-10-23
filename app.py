@@ -25,7 +25,7 @@ def salvar_pedidos(pedidos):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(pedidos, f, ensure_ascii=False, indent=4)
 
-# Estilização visual: Fundo magnólia/rosa suave e letras bem legíveis
+# Estilização visual com foco em alto contraste e bordas/sombras para legibilidade
 st.markdown("""
     <style>
     /* Fundo suave em tom rosa magnólia / rosa sólido claro */
@@ -34,7 +34,7 @@ st.markdown("""
         color: #3d0012 !important;
     }
 
-    /* Cores de texto gerais */
+    /* Cores de texto gerais com leve contorno para destaque */
     h1, h2, h3, h4, h5, h6, p, span, label, div {
         color: #3d0012 !important;
     }
@@ -86,7 +86,22 @@ st.markdown("""
         margin-bottom: 25px;
     }
 
-    /* Estilização dos botões */
+    /* Botão do Popover de Resgate com texto visível e contorno claro */
+    [data-testid="stPopover"] button {
+        background-color: #ffffff !important;
+        color: #800f2f !important;
+        border: 2px solid #ff4d6d !important;
+        border-radius: 20px !important;
+        font-weight: bold !important;
+        text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+    }
+
+    /* Textos dentro do Popover */
+    div[data-testid="stPopoverBody"] * {
+        color: #3d0012 !important;
+    }
+
+    /* Estilização dos botões gerais */
     .stButton>button {
         background-color: #ff4d6d !important;
         color: white !important;
@@ -128,12 +143,11 @@ st.write("---")
 # Abas da interface
 aba1, aba2 = st.tabs(["✉️ Adotar uma Cartinha", "➕ Escrever um Pedido"])
 
-# --- ABA 1: MURAL DE CARTINHAS (Com visualização clicável/filtrável) ---
+# --- ABA 1: MURAL DE CARTINHAS ---
 with aba1:
     st.markdown("### 🌼 Filtrar e Ver Cartinhas no Mural")
     st.write("Clique abaixo para ver as cartinhas enviadas de acordo com o status:")
     
-    # Filtro interativo para ver exatamente o que cada métrica representa
     filtro_visualizacao = st.radio(
         "Exibir cartinhas:",
         ["💌 Ver Todas as Cartinhas", "🌸 Aguardando Amor (Pendentes)", "❤️ Pedidos Resgatados"],
@@ -151,7 +165,6 @@ with aba1:
         for i, pedido in enumerate(st.session_state.pedidos):
             is_resgatado = pedido.get("resgatado", False)
             
-            # Aplicar o filtro escolhido pelo usuário
             if "Aguardando" in filtro_visualizacao and is_resgatado:
                 continue
             if "Resgatados" in filtro_visualizacao and not is_resgatado:
@@ -187,7 +200,7 @@ with aba1:
                             doador = nome_doador.strip() if nome_doador.strip() else "Anônimo(a)"
                             pedido["resgatado"] = True
                             pedido["padrinho"] = doador
-                            salvar_pedidos(st.session_state.pedidos) # Salva globalmente
+                            salvar_pedidos(st.session_state.pedidos)
                             st.success(f"Pedido marcado como resgatado por {doador}! Obrigado por ajudar! 💕")
                             st.rerun()
                 else:
@@ -232,7 +245,7 @@ with aba2:
                     "padrinho": None
                 }
                 st.session_state.pedidos.append(novo_pedido)
-                salvar_pedidos(st.session_state.pedidos) # Salva no arquivo para todo mundo ver!
+                salvar_pedidos(st.session_state.pedidos)
                 st.success("Sua cartinha foi enviada ao mural com sucesso para todos visualizarem! ✨")
                 st.rerun()
             else:
