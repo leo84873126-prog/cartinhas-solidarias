@@ -130,4 +130,25 @@ st.markdown("""
 
     /* Estilização dos botões (Tom Rosa/Roxo fofo) */
     .stButton>button, div.stFormSubmitButton > button, [data-testid="stPopover"] button {
-        background: linear-gradient(135deg, #ec407a 0%, #ab47bc 1
+        background: linear-gradient(135deg, #ec407a 0%, #ab47bc 100%) !important;
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+        border-radius: 22px !important;
+        border: none !important;
+        font-weight: bold !important;
+        font-size: 1rem !important;
+        box-shadow: 0px 3px 8px rgba(171, 71, 188, 0.3) !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Carrega os pedidos salvos no servidor para todos verem igual
+if 'pedidos' not in st.session_state:
+    st.session_state.pedidos = carregar_pedidos()
+
+# Cabeçalho Principal
+st.markdown("""
+    <div style="text-align: center; padding: 10px 0;">
+        <h1 style="color: #6a1b9a !important; font-size: 2.3rem;">🌸✨ Mural do Afeto & Solidariedade ✨🌸</h1>
+        <p style="color: #4a148c !important; font-size: 1.15rem; font-weight: 600;">
+            Um cantinho seguro, acolhedor e cheio de carinho para apoiar quem precisa de itens de
