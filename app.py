@@ -25,7 +25,7 @@ def salvar_pedidos(pedidos):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(pedidos, f, ensure_ascii=False, indent=4)
 
-# Estilização visual com foco em alto contraste, fundos brancos e legibilidade total
+# Estilização visual fofa, com botões corrigidos e alto contraste
 st.markdown("""
     <style>
     /* Fundo suave em tom rosa magnólia / rosa sólido claro */
@@ -39,7 +39,7 @@ st.markdown("""
         color: #3d0012 !important;
     }
 
-    /* Forçar campos de texto (input, textarea) com fundo branco e letras escuras */
+    /* Campos de texto e números com fundo branco e letras escuras */
     input, textarea, div[data-baseweb="input"] div, div[data-baseweb="base-input"] {
         background-color: #ffffff !important;
         color: #3d0012 !important;
@@ -98,7 +98,7 @@ st.markdown("""
         margin-bottom: 25px;
     }
 
-    /* Caixa do Popover (Janela de Resgate) com fundo branco e legibilidade total */
+    /* Caixa do Popover (Janela de Resgate) */
     div[data-testid="stPopoverBody"] {
         background-color: #ffffff !important;
         border: 2px solid #ff4d6d !important;
@@ -110,19 +110,11 @@ st.markdown("""
         color: #3d0012 !important;
     }
 
-    /* Botão do Popover */
-    [data-testid="stPopover"] button {
-        background-color: #ffffff !important;
-        color: #800f2f !important;
-        border: 2px solid #ff4d6d !important;
-        border-radius: 20px !important;
-        font-weight: bold !important;
-    }
-
-    /* Estilização dos botões gerais do site */
-    .stButton>button {
+    /* CORREÇÃO DOS BOTÕES (Inclusive o botão de enviar lá embaixo) */
+    .stButton>button, div.stFormSubmitButton > button, [data-testid="stPopover"] button {
         background-color: #ff4d6d !important;
-        color: white !important;
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
         border-radius: 20px !important;
         border: none !important;
         font-weight: bold !important;
@@ -135,14 +127,14 @@ st.markdown("""
 if 'pedidos' not in st.session_state:
     st.session_state.pedidos = carregar_pedidos()
 
-# Cabeçalho Principal
-st.markdown("<h1 style='text-align: center; color: #800f2f !important;'>Mural do Afeto & Solidariedade</h1>", unsafe_allow_html=True)
+# Cabeçalho Principal com flores decorativas vermelhas e rosas
+st.markdown("<h1 style='text-align: center; color: #800f2f !important;'>🌸 🌺 Mural do Afeto & Solidariedade 🌹 🌷</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #590d22 !important; font-size: 1.15rem; font-weight: bold;'>Um cantinho seguro e cheio de amor para apoiar quem precisa de itens essenciais de higiene menstrual. ✨</p>", unsafe_allow_html=True)
 
 # Mensagem fofa
 st.markdown("""
     <div class="banner-fofo">
-        <i>"Pequenos gestos de carinho florescem em grandes sorrisos. Seja bem-vinda(o) ao nosso jardim de afeto!"</i>
+        🌹 <i>"Pequenos gestos de carinho florescem em grandes sorrisos. Seja bem-vinda(o) ao nosso jardim de afeto!"</i> 🌺
     </div>
 """, unsafe_allow_html=True)
 
@@ -158,8 +150,8 @@ col_m3.metric("Pedidos Resgatados ❤️", resgatados)
 
 st.write("---")
 
-# Abas da interface
-aba1, aba2 = st.tabs(["✉️ Adotar uma Cartinha", "➕ Escrever um Pedido"])
+# Abas da interface com florzinhas
+aba1, aba2 = st.tabs(["🌸 Adotar uma Cartinha", "🌷 Escrever um Pedido"])
 
 # --- ABA 1: MURAL DE CARTINHAS ---
 with aba1:
@@ -175,7 +167,7 @@ with aba1:
     st.write("")
     
     if total_pedidos == 0:
-        st.info("O mural ainda está vazio. Seja a primeira pessoa a escrever uma cartinha na aba 'Escrever um Pedido'!")
+        st.info("🌸 O mural ainda está vazio. Seja a primeira pessoa a escrever uma cartinha na aba 'Escrever um Pedido'!")
     else:
         grid_cols = st.columns(2)
         pedidos_exibidos = 0
@@ -197,7 +189,7 @@ with aba1:
                 
                 st.markdown(f"""
                     <div class="card">
-                        <div class="card-title">Cartinha de {pedido['nome']} ({pedido['idade']} anos{serie_info})</div>
+                        <div class="card-title">🌸 Cartinha de {pedido['nome']} ({pedido['idade']} anos{serie_info})</div>
                         <small style="color: #590d22; font-weight: bold;">📍 {pedido['cidade']}</small><br><br>
                         <p class="card-text">"{pedido['historia']}"</p>
                         <hr style="border: 0.5px dashed #ffb3c1; margin: 10px 0;">
@@ -231,7 +223,7 @@ with aba1:
 
 # --- ABA 2: ADICIONAR NOVO PEDIDO ---
 with aba2:
-    st.markdown("### 📝 Escrever uma nova Cartinha")
+    st.markdown("### 📝 Escrever uma nova Cartinha 🌹")
     st.write("Sinta-se acolhida(o). Preencha os dados abaixo para publicar seu pedido no mural para todos.")
     
     with st.form("form_novo_pedido"):
@@ -264,7 +256,7 @@ with aba2:
                 }
                 st.session_state.pedidos.append(novo_pedido)
                 salvar_pedidos(st.session_state.pedidos)
-                st.success("Sua cartinha foi enviada ao mural com sucesso para todos visualizarem! ✨")
+                st.success("Sua cartinha foi enviada ao mural com sucesso para todos visualizarem! ✨🌸")
                 st.rerun()
             else:
                 st.error("Por favor, preencha o nome, o item necessário e a mensagem para enviar seu pedido.")
