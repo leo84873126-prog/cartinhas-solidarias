@@ -1,4 +1,6 @@
 import streamlit as st
+import json
+import os
 
 # Configuração da página
 st.set_page_config(
@@ -6,6 +8,22 @@ st.set_page_config(
     page_icon="🌸",
     layout="wide"
 )
+
+# Arquivo JSON para salvar os pedidos para TODOS os usuários (compartilhado)
+DATA_FILE = "pedidos.json"
+
+def carregar_pedidos():
+    if os.path.exists(DATA_FILE):
+        try:
+            with open(DATA_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return []
+    return []
+
+def salvar_pedidos(pedidos):
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(pedidos, f, ensure_ascii=False, indent=4)
 
 # Estilização visual: Fundo magnólia/rosa suave e letras bem legíveis
 st.markdown("""
@@ -80,11 +98,11 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Estado inicial da aplicação (Vazio)
+# Carrega os pedidos salvos no servidor para todos verem igual
 if 'pedidos' not in st.session_state:
-    st.session_state.pedidos = []
+    st.session_state.pedidos = carregar_pedidos()
 
-# Cabeçalho Principal (Sem as flores verdes)
+# Cabeçalho Principal
 st.markdown("<h1 style='text-align: center; color: #800f2f !important;'>Mural do Afeto & Solidariedade</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #590d22 !important; font-size: 1.15rem; font-weight: bold;'>Um cantinho seguro e cheio de amor para apoiar quem precisa de itens essenciais de higiene menstrual. ✨</p>", unsafe_allow_html=True)
 
@@ -95,9 +113,9 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Métricas e Contadores dinâmicos
+# Métricas e Contadores dinâmicos compartilhados
 total_pedidos = len(st.session_state.pedidos)
-resgatados = sum(1 for p in st.session_state.pedidos if p['resgatado'])
+resgatados = sum(1 for p in st.session_state.pedidos if p.get('resgatado', False))
 pendentes = total_pedidos - resgatados
 
 col_m1, col_m2, col_m3 = st.columns(3)
@@ -110,28 +128,40 @@ st.write("---")
 # Abas da interface
 aba1, aba2 = st.tabs(["✉️ Adotar uma Cartinha", "➕ Escrever um Pedido"])
 
-# --- ABA 1: MURAL DE CARTINHAS ---
+# --- ABA 1: MURAL DE CARTINHAS (Com visualização clicável/filtrável) ---
 with aba1:
-    st.markdown("### Cartinhas no Mural")
+    st.markdown("### 🌼 Filtrar e Ver Cartinhas no Mural")
+    st.write("Clique abaixo para ver as cartinhas enviadas de acordo com o status:")
+    
+    # Filtro interativo para ver exatamente o que cada métrica representa
+    filtro_visualizacao = st.radio(
+        "Exibir cartinhas:",
+        ["💌 Ver Todas as Cartinhas", "🌸 Aguardando Amor (Pendentes)", "❤️ Pedidos Resgatados"],
+        horizontal=True
+    )
+    
+    st.write("")
     
     if total_pedidos == 0:
         st.info("O mural ainda está vazio. Seja a primeira pessoa a escrever uma cartinha na aba 'Escrever um Pedido'!")
     else:
-        mostrar_resgatados = st.checkbox("Mostrar também cartinhas já resgatadas 💕", value=False)
-        
         grid_cols = st.columns(2)
         pedidos_exibidos = 0
         
         for i, pedido in enumerate(st.session_state.pedidos):
-            if not mostrar_resgatados and pedido["resgatado"]:
+            is_resgatado = pedido.get("resgatado", False)
+            
+            # Aplicar o filtro escolhido pelo usuário
+            if "Aguardando" in filtro_visualizacao and is_resgatado:
+                continue
+            if "Resgatados" in filtro_visualizacao and not is_resgatado:
                 continue
                 
             pedidos_exibidos += 1
-            col = grid_cols[i % 2]
+            col = grid_cols[pedidos_exibidos % 2]
             
             with col:
-                status_tag = "✅ Resgatado com Amor!" if pedido["resgatado"] else "⏳ Aguardando Resgate"
-                
+                status_tag = "✅ Resgatado com Amor!" if is_resgatado else "⏳ Aguardando Resgate"
                 serie_info = f" • {pedido['serie']}" if pedido.get('serie') else ""
                 
                 st.markdown(f"""
@@ -145,8 +175,8 @@ with aba1:
                     </div>
                 """, unsafe_allow_html=True)
                 
-                # Botão para responder / marcar como resgatado
-                if not pedido["resgatado"]:
+                # Botão para marcar como resgatado
+                if not is_resgatado:
                     with st.popover(f"🎁 Resgatar pedido de {pedido['nome']}"):
                         st.write(f"💖 **Você vai ajudar {pedido['nome']}!**")
                         st.write(f"Item necessário: **{pedido['item']}**")
@@ -157,20 +187,21 @@ with aba1:
                             doador = nome_doador.strip() if nome_doador.strip() else "Anônimo(a)"
                             pedido["resgatado"] = True
                             pedido["padrinho"] = doador
+                            salvar_pedidos(st.session_state.pedidos) # Salva globalmente
                             st.success(f"Pedido marcado como resgatado por {doador}! Obrigado por ajudar! 💕")
                             st.rerun()
                 else:
-                    st.info(f"Pedido resgatado por: **{pedido['padrinho']}** 💖")
+                    st.info(f"Pedido resgatado por: **{pedido.get('padrinho', 'Anônimo')}** 💖")
                 
                 st.markdown("<br>", unsafe_allow_html=True)
         
-        if pedidos_exibidos == 0 and not mostrar_resgatados:
-            st.success("Todas as cartinhas atuais já foram resgatadas! 💕 Marque a opção acima para visualizá-las.")
+        if pedidos_exibidos == 0:
+            st.info("Nenhuma cartinha encontrada para este filtro no momento. 💕")
 
 # --- ABA 2: ADICIONAR NOVO PEDIDO ---
 with aba2:
     st.markdown("### 📝 Escrever uma nova Cartinha")
-    st.write("Sinta-se acolhida(o). Preencha os dados abaixo para publicar seu pedido no mural.")
+    st.write("Sinta-se acolhida(o). Preencha os dados abaixo para publicar seu pedido no mural para todos.")
     
     with st.form("form_novo_pedido"):
         nome = st.text_input("Seu Nome ou Iniciais:")
@@ -189,7 +220,7 @@ with aba2:
         if submitted:
             if nome and item and historia:
                 novo_id = len(st.session_state.pedidos) + 1
-                st.session_state.pedidos.append({
+                novo_pedido = {
                     "id": novo_id,
                     "nome": nome,
                     "idade": idade,
@@ -199,8 +230,10 @@ with aba2:
                     "historia": historia,
                     "resgatado": False,
                     "padrinho": None
-                })
-                st.success("Sua cartinha foi enviada ao mural com sucesso! ✨")
+                }
+                st.session_state.pedidos.append(novo_pedido)
+                salvar_pedidos(st.session_state.pedidos) # Salva no arquivo para todo mundo ver!
+                st.success("Sua cartinha foi enviada ao mural com sucesso para todos visualizarem! ✨")
                 st.rerun()
             else:
                 st.error("Por favor, preencha o nome, o item necessário e a mensagem para enviar seu pedido.")
