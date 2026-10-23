@@ -25,7 +25,7 @@ def salvar_pedidos(pedidos):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(pedidos, f, ensure_ascii=False, indent=4)
 
-# Estilização visual no estilo Papelaria Fofa (Grid, Gradiente Rosa/Roxo e Ilustrações Aquarela)
+# Estilização visual no estilo Papelaria Fofa (Grid, Gradiente Rosa/Roxo)
 st.markdown("""
     <style>
     /* Fundo degradê rosa/roxo suave com estampa de papel quadriculado */
@@ -68,7 +68,7 @@ st.markdown("""
         overflow: hidden;
     }
 
-    /* Detalhe floral decorativo estilo aquarela no canto das cartinhas */
+    /* Detalhe floral decorativo no canto das cartinhas */
     .card::before {
         content: "🌸";
         position: absolute;
@@ -130,124 +130,4 @@ st.markdown("""
 
     /* Estilização dos botões (Tom Rosa/Roxo fofo) */
     .stButton>button, div.stFormSubmitButton > button, [data-testid="stPopover"] button {
-        background: linear-gradient(135deg, #ec407a 0%, #ab47bc 100%) !important;
-        color: #ffffff !important;
-        -webkit-text-fill-color: #ffffff !important;
-        border-radius: 22px !important;
-        border: none !important;
-        font-weight: bold !important;
-        font-size: 1rem !important;
-        box-shadow: 0px 3px 8px rgba(171, 71, 188, 0.3) !important;
-    }
-
-    /* Ajuste para botões secundários como excluir */
-    button[key*="del_"] {
-        background: #f8bbd0 !important;
-        color: #880e4f !important;
-        -webkit-text-fill-color: #880e4f !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# Carrega os pedidos salvos no servidor para todos verem igual
-if 'pedidos' not in st.session_state:
-    st.session_state.pedidos = carregar_pedidos()
-
-# Cabeçalho Principal com ilustração temática de flores
-st.markdown("""
-    <div style="text-align: center; padding: 10px 0;">
-        <h1 style="color: #6a1b9a !important; font-size: 2.3rem;">🌸✨ Mural do Afeto & Solidariedade ✨🌸</h1>
-        <p style="color: #4a148c !important; font-size: 1.15rem; font-weight: 600;">
-            Um cantinho seguro, acolhedor e cheio de carinho para apoiar quem precisa de itens de higiene menstrual. 🎀
-        </p>
-    </div>
-""", unsafe_allow_html=True)
-
-# Mensagem fofa
-st.markdown("""
-    <div class="banner-fofo">
-        🌷 <i>"Pequenos gestos de carinho florescem em grandes sorrisos. Seja bem-vinda(o) ao nosso jardim de afeto!"</i> 🌷
-    </div>
-""", unsafe_allow_html=True)
-
-# Métricas e Contadores dinâmicos compartilhados
-total_pedidos = len(st.session_state.pedidos)
-resgatados = sum(1 for p in st.session_state.pedidos if p.get('resgatado', False))
-pendentes = total_pedidos - resgatados
-
-col_m1, col_m2, col_m3 = st.columns(3)
-col_m1.metric("Total de Cartinhas 💌", total_pedidos)
-col_m2.metric("Aguardando Amor 🌸", pendentes)
-col_m3.metric("Pedidos Resgatados ❤️", resgatados)
-
-st.write("---")
-
-# Abas da interface com florzinhas
-aba1, aba2 = st.tabs(["🌸 Adotar uma Cartinha", "🌷 Escrever um Pedido"])
-
-# --- ABA 1: MURAL DE CARTINHAS ---
-with aba1:
-    st.markdown("### 🌼 Cartinhas no Mural")
-    st.write("Clique abaixo para filtrar e ver as cartinhas enviadas:")
-    
-    filtro_visualizacao = st.radio(
-        "Exibir cartinhas:",
-        ["💌 Ver Todas as Cartinhas", "🌸 Aguardando Amor (Pendentes)", "❤️ Pedidos Resgatados"],
-        horizontal=True
-    )
-    
-    st.write("")
-    
-    if total_pedidos == 0:
-        st.info("🌸 O mural ainda está vazio. Seja a primeira pessoa a escrever uma cartinha na aba 'Escrever um Pedido'!")
-    else:
-        grid_cols = st.columns(2)
-        pedidos_exibidos = 0
-        
-        for i, pedido in enumerate(st.session_state.pedidos):
-            is_resgatado = pedido.get("resgatado", False)
-            
-            if "Aguardando" in filtro_visualizacao and is_resgatado:
-                continue
-            if "Resgatados" in filtro_visualizacao and not is_resgatado:
-                continue
-                
-            pedidos_exibidos += 1
-            col = grid_cols[pedidos_exibidos % 2]
-            
-            with col:
-                status_tag = "✅ Resgatado com Amor!" if is_resgatado else "⏳ Aguardando Resgate"
-                serie_info = f" • {pedido['serie']}" if pedido.get('serie') else ""
-                
-                st.markdown(f"""
-                    <div class="card">
-                        <div class="card-title">🌸 Cartinha de {pedido['nome']} ({pedido['idade']} anos{serie_info})</div>
-                        <small style="color: #6a1b9a; font-weight: bold;">📍 {pedido['cidade']}</small><br><br>
-                        <p class="card-text">"{pedido['historia']}"</p>
-                        <hr style="border: 0.5px dashed #ce93d8; margin: 10px 0;">
-                        <b style="color: #3d0012;">📦 Item necessário:</b> <span class="badge">{pedido['item']}</span><br><br>
-                        <small style="color: #3d0012;">Status: <b>{status_tag}</b></small>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-                # Botão para marcar como resgatado
-                if not is_resgatado:
-                    with st.popover(f"🎁 Resgatar pedido de {pedido['nome']}"):
-                        st.write(f"💖 **Você vai ajudar {pedido['nome']}!**")
-                        st.write(f"Item necessário: **{pedido['item']}**")
-                        
-                        nome_doador = st.text_input("Seu nome ou apelido (opcional):", key=f"nome_{pedido['id']}")
-                        
-                        if st.button("Marcar pedido como resgatado ❤️", key=f"btn_{pedido['id']}"):
-                            doador = nome_doador.strip() if nome_doador.strip() else "Anônimo(a)"
-                            pedido["resgatado"] = True
-                            pedido["padrinho"] = doador
-                            salvar_pedidos(st.session_state.pedidos)
-                            st.success(f"Pedido marcado como resgatado por {doador}! Obrigado por ajudar! 💕")
-                            st.rerun()
-                else:
-                    st.info(f"Pedido resgatado por: **{pedido.get('padrinho', 'Anônimo')}** 💖")
-                
-                # Botão para excluir cartinha
-                if st.button("🗑️ Excluir Cartinha", key=f"del_{pedido['id']}"):
-                    st.
+        background: linear-gradient(135deg, #ec407a 0%, #ab47bc 1
