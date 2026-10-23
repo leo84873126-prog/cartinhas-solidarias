@@ -25,12 +25,17 @@ def salvar_pedidos(pedidos):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(pedidos, f, ensure_ascii=False, indent=4)
 
-# Estilização visual fofa, com botões corrigidos e alto contraste
+# Estilização visual no estilo Papelaria Fofa (Grid, Gradiente Rosa/Roxo e Ilustrações Aquarela)
 st.markdown("""
     <style>
-    /* Fundo suave em tom rosa magnólia / rosa sólido claro */
+    /* Fundo degradê rosa/roxo suave com estampa de papel quadriculado */
     .stApp {
-        background-color: #fbf0f5 !important;
+        background-color: #fce4ec !important;
+        background-image: 
+            linear-gradient(135deg, rgba(255, 230, 242, 0.85) 0%, rgba(243, 229, 245, 0.85) 100%),
+            linear-gradient(to right, rgba(240, 180, 210, 0.2) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(240, 180, 210, 0.2) 1px, transparent 1px) !important;
+        background-size: 100% 100%, 24px 24px, 24px 24px !important;
         color: #3d0012 !important;
     }
 
@@ -39,7 +44,7 @@ st.markdown("""
         color: #3d0012 !important;
     }
 
-    /* Campos de texto e números com fundo branco e letras escuras */
+    /* Campos de texto e números com fundo branco e borda suave */
     input, textarea, div[data-baseweb="input"] div, div[data-baseweb="base-input"] {
         background-color: #ffffff !important;
         color: #3d0012 !important;
@@ -47,78 +52,99 @@ st.markdown("""
     }
 
     input, textarea {
-        border: 2px solid #ffb3c1 !important;
-        border-radius: 10px !important;
+        border: 2px solid #f8bbd0 !important;
+        border-radius: 12px !important;
     }
 
-    /* Estilo do Card / Cartinha */
+    /* Estilo do Card / Cartinha estilo papelaria/adesivo */
     .card {
         background: #ffffff;
-        border-radius: 18px;
-        padding: 22px;
-        border: 2px solid #ffb3c1;
+        border-radius: 20px;
+        padding: 24px;
+        border: 2px solid #f48fb1;
         margin-bottom: 20px;
-        box-shadow: 0px 4px 12px rgba(230, 180, 200, 0.3);
+        box-shadow: 0px 6px 16px rgba(206, 147, 216, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Detalhe floral decorativo estilo aquarela no canto das cartinhas */
+    .card::before {
+        content: "🌸";
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 1.5rem;
+        opacity: 0.8;
     }
 
     .card-title {
-        color: #800f2f !important;
+        color: #7b1fa2 !important;
         font-weight: bold;
         font-size: 1.25rem;
     }
 
     .card-text {
         color: #2b000d !important;
-        background: #fff0f5;
+        background: #fdf0f7;
         padding: 12px;
-        border-radius: 10px;
-        border-left: 4px solid #ff4d6d;
+        border-radius: 12px;
+        border-left: 4px solid #ab47bc;
         font-size: 1.05rem;
     }
 
     .badge {
-        background-color: #ff4d6d;
+        background-color: #ec407a;
         color: #ffffff !important;
-        padding: 6px 12px;
-        border-radius: 12px;
+        padding: 6px 14px;
+        border-radius: 15px;
         font-size: 0.95rem;
         font-weight: bold;
     }
 
-    /* Banner de mensagens fofas */
+    /* Banner fofo de cabeçalho estilo sticker de papel */
     .banner-fofo {
         background: #ffffff;
-        border-radius: 15px;
-        padding: 15px;
+        border-radius: 18px;
+        padding: 16px;
         text-align: center;
-        border: 2px solid #ffb3c1;
-        color: #590d22 !important;
+        border: 2px dashed #ce93d8;
+        color: #6a1b9a !important;
         font-weight: bold;
-        font-size: 1.05rem;
+        font-size: 1.1rem;
         margin-bottom: 25px;
+        box-shadow: 0px 4px 10px rgba(225, 190, 231, 0.4);
     }
 
     /* Caixa do Popover (Janela de Resgate) */
     div[data-testid="stPopoverBody"] {
         background-color: #ffffff !important;
-        border: 2px solid #ff4d6d !important;
-        border-radius: 15px !important;
-        box-shadow: 0px 4px 15px rgba(0,0,0,0.1) !important;
+        border: 2px solid #ab47bc !important;
+        border-radius: 18px !important;
+        box-shadow: 0px 6px 20px rgba(0,0,0,0.12) !important;
     }
 
     div[data-testid="stPopoverBody"] * {
         color: #3d0012 !important;
     }
 
-    /* CORREÇÃO DOS BOTÕES (Inclusive o botão de enviar lá embaixo) */
+    /* Estilização dos botões (Tom Rosa/Roxo fofo) */
     .stButton>button, div.stFormSubmitButton > button, [data-testid="stPopover"] button {
-        background-color: #ff4d6d !important;
+        background: linear-gradient(135deg, #ec407a 0%, #ab47bc 100%) !important;
         color: #ffffff !important;
         -webkit-text-fill-color: #ffffff !important;
-        border-radius: 20px !important;
+        border-radius: 22px !important;
         border: none !important;
         font-weight: bold !important;
         font-size: 1rem !important;
+        box-shadow: 0px 3px 8px rgba(171, 71, 188, 0.3) !important;
+    }
+
+    /* Ajuste para botões secundários como excluir */
+    button[key*="del_"] {
+        background: #f8bbd0 !important;
+        color: #880e4f !important;
+        -webkit-text-fill-color: #880e4f !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -127,14 +153,20 @@ st.markdown("""
 if 'pedidos' not in st.session_state:
     st.session_state.pedidos = carregar_pedidos()
 
-# Cabeçalho Principal com flores decorativas vermelhas e rosas
-st.markdown("<h1 style='text-align: center; color: #800f2f !important;'>🌸 🌺 Mural do Afeto & Solidariedade 🌹 🌷</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #590d22 !important; font-size: 1.15rem; font-weight: bold;'>Um cantinho seguro e cheio de amor para apoiar quem precisa de itens essenciais de higiene menstrual. ✨</p>", unsafe_allow_html=True)
+# Cabeçalho Principal com ilustração temática de flores
+st.markdown("""
+    <div style="text-align: center; padding: 10px 0;">
+        <h1 style="color: #6a1b9a !important; font-size: 2.3rem;">🌸✨ Mural do Afeto & Solidariedade ✨🌸</h1>
+        <p style="color: #4a148c !important; font-size: 1.15rem; font-weight: 600;">
+            Um cantinho seguro, acolhedor e cheio de carinho para apoiar quem precisa de itens de higiene menstrual. 🎀
+        </p>
+    </div>
+""", unsafe_allow_html=True)
 
 # Mensagem fofa
 st.markdown("""
     <div class="banner-fofo">
-        🌹 <i>"Pequenos gestos de carinho florescem em grandes sorrisos. Seja bem-vinda(o) ao nosso jardim de afeto!"</i> 🌺
+        🌷 <i>"Pequenos gestos de carinho florescem em grandes sorrisos. Seja bem-vinda(o) ao nosso jardim de afeto!"</i> 🌷
     </div>
 """, unsafe_allow_html=True)
 
@@ -155,8 +187,8 @@ aba1, aba2 = st.tabs(["🌸 Adotar uma Cartinha", "🌷 Escrever um Pedido"])
 
 # --- ABA 1: MURAL DE CARTINHAS ---
 with aba1:
-    st.markdown("### 🌼 Filtrar e Ver Cartinhas no Mural")
-    st.write("Clique abaixo para ver as cartinhas enviadas de acordo com o status:")
+    st.markdown("### 🌼 Cartinhas no Mural")
+    st.write("Clique abaixo para filtrar e ver as cartinhas enviadas:")
     
     filtro_visualizacao = st.radio(
         "Exibir cartinhas:",
@@ -190,9 +222,9 @@ with aba1:
                 st.markdown(f"""
                     <div class="card">
                         <div class="card-title">🌸 Cartinha de {pedido['nome']} ({pedido['idade']} anos{serie_info})</div>
-                        <small style="color: #590d22; font-weight: bold;">📍 {pedido['cidade']}</small><br><br>
+                        <small style="color: #6a1b9a; font-weight: bold;">📍 {pedido['cidade']}</small><br><br>
                         <p class="card-text">"{pedido['historia']}"</p>
-                        <hr style="border: 0.5px dashed #ffb3c1; margin: 10px 0;">
+                        <hr style="border: 0.5px dashed #ce93d8; margin: 10px 0;">
                         <b style="color: #3d0012;">📦 Item necessário:</b> <span class="badge">{pedido['item']}</span><br><br>
                         <small style="color: #3d0012;">Status: <b>{status_tag}</b></small>
                     </div>
@@ -216,47 +248,6 @@ with aba1:
                 else:
                     st.info(f"Pedido resgatado por: **{pedido.get('padrinho', 'Anônimo')}** 💖")
                 
-                st.markdown("<br>", unsafe_allow_html=True)
-        
-        if pedidos_exibidos == 0:
-            st.info("Nenhuma cartinha encontrada para este filtro no momento. 💕")
-
-# --- ABA 2: ADICIONAR NOVO PEDIDO ---
-with aba2:
-    st.markdown("### 📝 Escrever uma nova Cartinha 🌹")
-    st.write("Sinta-se acolhida(o). Preencha os dados abaixo para publicar seu pedido no mural para todos.")
-    
-    with st.form("form_novo_pedido"):
-        nome = st.text_input("Seu Nome ou Iniciais:")
-        col_f1, col_f2 = st.columns(2)
-        with col_f1:
-            idade = st.number_input("Sua Idade:", min_value=10, max_value=100, value=15)
-        with col_f2:
-            serie = st.text_input("Qual série/ano você cursa?", placeholder="Ex: 3ª série / 3º ano")
-            
-        cidade = st.text_input("Sua Cidade / Estado:", value="Minaçu - GO")
-        item = st.text_input("Qual item ou kit de higiene você precisa?", placeholder="Ex: 2 Pacotes de absorventes com abas + Sabonete neutro")
-        historia = st.text_area("Escreva seu pedido / mensagem:", placeholder="Conta um pouquinho do seu pedido... Lembre-se: este é um espaço seguro e sem julgamentos! 💕")
-        
-        submitted = st.form_submit_button("Enviar Cartinha ao Mural 💌")
-        
-        if submitted:
-            if nome and item and historia:
-                novo_id = len(st.session_state.pedidos) + 1
-                novo_pedido = {
-                    "id": novo_id,
-                    "nome": nome,
-                    "idade": idade,
-                    "serie": serie,
-                    "cidade": cidade,
-                    "item": item,
-                    "historia": historia,
-                    "resgatado": False,
-                    "padrinho": None
-                }
-                st.session_state.pedidos.append(novo_pedido)
-                salvar_pedidos(st.session_state.pedidos)
-                st.success("Sua cartinha foi enviada ao mural com sucesso para todos visualizarem! ✨🌸")
-                st.rerun()
-            else:
-                st.error("Por favor, preencha o nome, o item necessário e a mensagem para enviar seu pedido.")
+                # Botão para excluir cartinha
+                if st.button("🗑️ Excluir Cartinha", key=f"del_{pedido['id']}"):
+                    st.
