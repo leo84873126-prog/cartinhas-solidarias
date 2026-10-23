@@ -212,7 +212,6 @@ with aba1:
                 status_tag = "✅ Resgatado com Amor!" if is_resgatado else "⏳ Aguardando Resgate"
                 serie_info = f" • {pedido['serie']}" if pedido.get('serie') else ""
                 
-                # Montagem segura do HTML da cartinha
                 card_html = (
                     f"<div class=\"card\">"
                     f"<div class=\"card-title\">🌸 Cartinha de {pedido['nome']} ({pedido['idade']} anos{serie_info})</div>"
@@ -231,36 +230,4 @@ with aba1:
                         st.write(f"💖 **Você vai ajudar {pedido['nome']}!**")
                         st.write(f"Item necessário: **{pedido['item']}**")
                         
-                        nome_doador = st.text_input("Seu nome ou apelido (opcional):", key=f"nome_{pedido['id']}")
-                        
-                        if st.button("Marcar pedido como resgatado ❤️", key=f"btn_{pedido['id']}"):
-                            doador = nome_doador.strip() if nome_doador.strip() else "Anônimo(a)"
-                            pedido["resgatado"] = True
-                            pedido["padrinho"] = doador
-                            salvar_pedidos(st.session_state.pedidos)
-                            st.success(f"Pedido marcado como resgatado por {doador}! Obrigado por ajudar! 💕")
-                            st.rerun()
-                else:
-                    st.info(f"Pedido resgatado por: **{pedido.get('padrinho', 'Anônimo')}** 💖")
-                
-                # Botão para excluir cartinha
-                if st.button("🗑️ Excluir Cartinha", key=f"del_{pedido['id']}"):
-                    st.session_state.pedidos = [p for p in st.session_state.pedidos if p['id'] != pedido['id']]
-                    salvar_pedidos(st.session_state.pedidos)
-                    st.success("Cartinha excluída com sucesso! 🌸")
-                    st.rerun()
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-        
-        if pedidos_exibidos == 0:
-            st.info("Nenhuma cartinha encontrada para este filtro no momento. 💕")
-
-# --- ABA 2: ADICIONAR NOVO PEDIDO ---
-with aba2:
-    st.markdown("### 📝 Escrever uma nova Cartinha 🌹")
-    st.write("Sinta-se acolhida(o). Preencha os dados abaixo para publicar seu pedido no mural para todos.")
-    
-    with st.form("form_novo_pedido"):
-        nome = st.text_input("Seu Nome ou Iniciais:")
-        col_f1, col_f2 = st.columns(2)
-        with col
+                        nome_doador = st.text_input("Seu nome ou apelido (opcional):", key=
