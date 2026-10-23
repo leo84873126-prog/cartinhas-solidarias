@@ -25,7 +25,7 @@ def salvar_pedidos(pedidos):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(pedidos, f, ensure_ascii=False, indent=4)
 
-# Estilização visual com foco em alto contraste e bordas/sombras para legibilidade
+# Estilização visual com foco em alto contraste, fundos brancos e legibilidade total
 st.markdown("""
     <style>
     /* Fundo suave em tom rosa magnólia / rosa sólido claro */
@@ -34,9 +34,21 @@ st.markdown("""
         color: #3d0012 !important;
     }
 
-    /* Cores de texto gerais com leve contorno para destaque */
+    /* Cores de texto gerais */
     h1, h2, h3, h4, h5, h6, p, span, label, div {
         color: #3d0012 !important;
+    }
+
+    /* Forçar campos de texto (input, textarea) com fundo branco e letras escuras */
+    input, textarea, div[data-baseweb="input"] div, div[data-baseweb="base-input"] {
+        background-color: #ffffff !important;
+        color: #3d0012 !important;
+        -webkit-text-fill-color: #3d0012 !important;
+    }
+
+    input, textarea {
+        border: 2px solid #ffb3c1 !important;
+        border-radius: 10px !important;
     }
 
     /* Estilo do Card / Cartinha */
@@ -86,22 +98,28 @@ st.markdown("""
         margin-bottom: 25px;
     }
 
-    /* Botão do Popover de Resgate com texto visível e contorno claro */
+    /* Caixa do Popover (Janela de Resgate) com fundo branco e legibilidade total */
+    div[data-testid="stPopoverBody"] {
+        background-color: #ffffff !important;
+        border: 2px solid #ff4d6d !important;
+        border-radius: 15px !important;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.1) !important;
+    }
+
+    div[data-testid="stPopoverBody"] * {
+        color: #3d0012 !important;
+    }
+
+    /* Botão do Popover */
     [data-testid="stPopover"] button {
         background-color: #ffffff !important;
         color: #800f2f !important;
         border: 2px solid #ff4d6d !important;
         border-radius: 20px !important;
         font-weight: bold !important;
-        text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
     }
 
-    /* Textos dentro do Popover */
-    div[data-testid="stPopoverBody"] * {
-        color: #3d0012 !important;
-    }
-
-    /* Estilização dos botões gerais */
+    /* Estilização dos botões gerais do site */
     .stButton>button {
         background-color: #ff4d6d !important;
         color: white !important;
