@@ -205,4 +205,15 @@ with aba1:
     # Aviso explicativo sobre a entrega atualizado para a Sala 3-D
     st.markdown("""
         <div class="aviso-entrega">
-            📦 <b>Como realizar a entrega da do
+            📦 <b>Como realizar a entrega da doação:</b> A entrega deve ser feita no local de retirada ou diretamente com os responsáveis pelo projeto, que são os alunos da <b>Sala 3-D</b>. 💕
+        </div>
+    """, unsafe_allow_html=True)
+    
+    if total_pedidos == 0:
+        st.info("🌸 O mural ainda está vazio. Seja a primeira pessoa a escrever uma cartinha na aba 'Escrever um Pedido'!")
+    else:
+        grid_cols = st.columns(2)
+        pedidos_exibidos = 0
+        
+        for i, pedido in enumerate(st.session_state.pedidos):
+            is_resgat
