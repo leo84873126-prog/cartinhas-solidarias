@@ -228,12 +228,4 @@ with aba1:
             
             with col:
                 status_tag = "✅ Resgatado com Amor!" if is_resgatado else "⏳ Aguardando Resgate"
-                serie_info = f" • {pedido['serie']}" if pedido.get('serie') else ""
-                
-                card_html = (
-                    '<div class="card">'
-                    f'<div class="card-title">🌸 Cartinha de {pedido["nome"]} ({pedido["idade"]} anos{serie_info})</div>'
-                    f'<small style="color: #6a1b9a; font-weight: bold;">📍 {pedido["cidade"]}</small><br><br>'
-                    f'<p class="card-text">"{pedido["historia"]}"</p>'
-                    '<hr style="border: 0.5px dashed #ce93d8; margin: 10px 0;">'
-                    f'<b style="color: #3d0012;">
+                serie_info = f" • {pedido['serie']}" if pedido.
