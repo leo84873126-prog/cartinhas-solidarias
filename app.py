@@ -228,4 +228,80 @@ with aba1:
             
             with col:
                 status_tag = "✅ Resgatado com Amor!" if is_resgatado else "⏳ Aguardando Resgate"
-                serie_info = f" • {pedido['serie']}" if pedido.
+                serie_info = f" • {pedido['serie']}" if pedido.get('serie') else ""
+                
+                # Montagem do card em uma única linha contínua para evitar erros de sintaxe
+                card_html = '<div class="card"><div class="card-title">🌸 Cartinha de ' + str(pedido['nome']) + ' (' + str(pedido['idade']) + ' anos' + str(serie_info) + ')</div><small style="color: #6a1b9a; font-weight: bold;">📍 ' + str(pedido['cidade']) + '</small><br><br><p class="card-text">"' + str(pedido['historia']) + '"</p><hr style="border: 0.5px dashed #ce93d8; margin: 10px 0;"><b style="color: #3d0012;">📦 Item necessário:</b> <span class="badge">' + str(pedido['item']) + '</span><br><br><small style="color: #3d0012;">Status: <b>' + str(status_tag) + '</b></small></div>'
+                
+                st.markdown(card_html, unsafe_allow_html=True)
+                
+                # Botão para marcar como resgatado
+                if not is_resgatado:
+                    with st.popover(f"🎁 Resgatar pedido de {pedido['nome']}"):
+                        st.write(f"💖 **Você vai ajudar {pedido['nome']}!**")
+                        st.write(f"Item necessário: **{pedido['item']}**")
+                        st.info("💡 Lembre-se: Entregue a doação no local de retirada ou para os responsáveis da **Sala 3-D**.")
+                        
+                        nome_doador = st.text_input("Seu nome ou apelido (opcional):", key=f"nome_{pedido['id']}")
+                        
+                        if st.button("Marcar pedido como resgatado ❤️", key=f"btn_{pedido['id']}"):
+                            doador = nome_doador.strip() if nome_doador else "Anônimo(a)"
+                            pedido["resgatado"] = True
+                            pedido["padrinho"] = doador
+                            salvar_pedidos(st.session_state.pedidos)
+                            st.success(f"Pedido marcado como resgatado por {doador}! Obrigado por ajudar! 💕")
+                            st.rerun()
+                else:
+                    st.info(f"Pedido resgatado por: **{pedido.get('padrinho', 'Anônimo')}** 💖")
+                
+                # Botão para excluir cartinha
+                if st.button("🗑️ Excluir Cartinha", key=f"del_{pedido['id']}"):
+                    st.session_state.pedidos = [p for p in st.session_state.pedidos if p['id'] != pedido['id']]
+                    salvar_pedidos(st.session_state.pedidos)
+                    st.success("Cartinha excluída com sucesso! 🌸")
+                    st.rerun()
+                
+                st.markdown("<br>", unsafe_allow_html=True)
+        
+        if pedidos_exibidos == 0:
+            st.info("Nenhuma cartinha encontrada para este filtro no momento. 💕")
+
+# --- ABA 2: ADICIONAR NOVO PEDIDO ---
+with aba2:
+    st.markdown("### 📝 Escrever uma nova Cartinha 🌹")
+    st.write("Sinta-se acolhida(o). Preencha os dados abaixo para publicar seu pedido no mural para todos.")
+    
+    with st.form("form_novo_pedido"):
+        nome = st.text_input("Seu Nome ou Iniciais:")
+        col_f1, col_f2 = st.columns(2)
+        with col_f1:
+            idade = st.number_input("Sua Idade:", min_value=10, max_value=100, value=15)
+        with col_f2:
+            serie = st.text_input("Qual série/ano você cursa?", placeholder="Ex: 3ª série / 3º ano")
+            
+        cidade = st.text_input("Sua Cidade / Estado:", value="Minaçu - GO")
+        item = st.text_input("Qual item ou kit de higiene você precisa?", placeholder="Ex: 2 Pacotes de absorventes com abas + Sabonete neutro")
+        historia = st.text_area("Escreva seu pedido / mensagem:", placeholder="Conta um pouquinho do seu pedido... Lembre-se: este é um espaço seguro e sem julgamentos! 💕")
+        
+        submitted = st.form_submit_button("Enviar Cartinha ao Mural 💌")
+        
+        if submitted:
+            if nome and item and historia:
+                novo_id = len(st.session_state.pedidos) + 1 if not st.session_state.pedidos else max(p['id'] for p in st.session_state.pedidos) + 1
+                novo_pedido = {
+                    "id": novo_id,
+                    "nome": nome,
+                    "idade": idade,
+                    "serie": serie,
+                    "cidade": cidade,
+                    "item": item,
+                    "historia": historia,
+                    "resgatado": False,
+                    "padrinho": None
+                }
+                st.session_state.pedidos.append(novo_pedido)
+                salvar_pedidos(st.session_state.pedidos)
+                st.success("Sua cartinha foi enviada ao mural com sucesso para todos visualizarem! ✨🌸")
+                st.rerun()
+            else:
+                st.error("Por favor, preencha o nome, o item necessário e a mensagem para enviar seu pedido.")
