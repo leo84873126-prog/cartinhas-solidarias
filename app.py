@@ -116,6 +116,17 @@ st.markdown("""
         box-shadow: 0px 4px 10px rgba(225, 190, 231, 0.4);
     }
 
+    /* Caixa de aviso de entrega */
+    .aviso-entrega {
+        background: #fff8e1;
+        border-radius: 15px;
+        padding: 14px;
+        border: 2px solid #ffe082;
+        color: #5d4037 !important;
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+    }
+
     /* Caixa do Popover (Janela de Resgate) */
     div[data-testid="stPopoverBody"] {
         background-color: #ffffff !important;
@@ -191,6 +202,13 @@ with aba1:
     
     st.write("")
     
+    # Aviso explicativo sobre a entrega
+    st.markdown("""
+        <div class="aviso-entrega">
+            📦 <b>Como realizar a entrega da doação:</b> A entrega deve ser feita no local de retirada ou diretamente para os responsáveis pelo projeto, que são os alunos da <b>Sala 3°F</b>. 💕
+        </div>
+    """, unsafe_allow_html=True)
+    
     if total_pedidos == 0:
         st.info("🌸 O mural ainda está vazio. Seja a primeira pessoa a escrever uma cartinha na aba 'Escrever um Pedido'!")
     else:
@@ -212,7 +230,6 @@ with aba1:
                 status_tag = "✅ Resgatado com Amor!" if is_resgatado else "⏳ Aguardando Resgate"
                 serie_info = f" • {pedido['serie']}" if pedido.get('serie') else ""
                 
-                # Cartinha formatada de forma limpa e segura
                 card_html = f"""
                     <div class="card">
                         <div class="card-title">🌸 Cartinha de {pedido['nome']} ({pedido['idade']} anos{serie_info})</div>
@@ -230,6 +247,7 @@ with aba1:
                     with st.popover(f"🎁 Resgatar pedido de {pedido['nome']}"):
                         st.write(f"💖 **Você vai ajudar {pedido['nome']}!**")
                         st.write(f"Item necessário: **{pedido['item']}**")
+                        st.info("💡 Lembre-se: Entregue a doação no local de retirada ou para os responsáveis da **Sala 3°F**.")
                         
                         nome_doador = st.text_input("Seu nome ou apelido (opcional):", key=f"nome_{pedido['id']}")
                         
@@ -268,7 +286,7 @@ with aba2:
         with col_f2:
             serie = st.text_input("Qual série/ano você cursa?", placeholder="Ex: 3ª série / 3º ano")
             
-        cidade = st.text_input("Seu Cidade / Estado:", value="Minaçu - GO")
+        cidade = st.text_input("Sua Cidade / Estado:", value="Minaçu - GO")
         item = st.text_input("Qual item ou kit de higiene você precisa?", placeholder="Ex: 2 Pacotes de absorventes com abas + Sabonete neutro")
         historia = st.text_area("Escreva seu pedido / mensagem:", placeholder="Conta um pouquinho do seu pedido... Lembre-se: este é um espaço seguro e sem julgamentos! 💕")
         
@@ -288,4 +306,9 @@ with aba2:
                     "resgatado": False,
                     "padrinho": None
                 }
-                st.session_state
+                st.session_state.pedidos.append(novo_pedido)
+                salvar_pedidos(st.session_state.pedidos)
+                st.success("Sua cartinha foi enviada ao mural com sucesso para todos visualizarem! ✨🌸")
+                st.rerun()
+            else:
+                st.error("Por favor, preencha o nome, o item necessário e a mensagem para enviar seu pedido.")
